@@ -61,6 +61,27 @@ npm run deploy:target # deploy contracts on source
 
 ### Smart Contract Architecture
 
+     ┌────┐          ┌────────┐          ┌───────┐          ┌──────────────┐          ┌───────┐          ┌────────┐
+     │User│          │CounterX│          │BridgeX│          │TrustedRelayer│          │BridgeY│          │CounterY│
+     └─┬──┘          └───┬────┘          └───┬───┘          └──────┬───────┘          └───┬───┘          └───┬────┘
+       │ send(increment) │                   │                     │                      │                  │
+       │ ────────────────>                   │                     │                      │                  │
+       │                 │                   │                     │                      │                  │
+       │                 │      send()       │                     │                      │                  │
+       │                 │ ─────────────────>│                     │                      │                  │
+       │                 │                   │                     │                      │                  │
+       │                 │                   │  RequestForward()   │                      │                  │
+       │                 │                   │────────────────────>│                      │                  │
+       │                 │                   │                     │                      │                  │
+       │                 │                   │                     │      execute()       │                  │
+       │                 │                   │                     │ ────────────────────>│                  │
+       │                 │                   │                     │                      │                  │
+       │                 │                   │                     │                      │    increment     │
+       │                 │                   │                     │                      │─────────────────>│
+     ┌─┴──┐          ┌───┴────┐          ┌───┴───┐          ┌──────┴───────┐          ┌───┴───┐          ┌───┴────┐
+     │User│          │CounterX│          │BridgeX│          │TrustedRelayer│          │BridgeY│          │CounterY│
+     └────┘          └────────┘          └───────┘          └──────────────┘          └───────┘          └────────┘
+
 These contracts implement a few checks to ensure security and integrity of relayed messages between two EVM chains:
 
 1. Verify the authenticity of the signed transaction: The relayer should check that the signature on the transaction is valid and corresponds to the expected sender.
