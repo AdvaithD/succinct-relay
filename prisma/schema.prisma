@@ -1,0 +1,23 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ArbitraryMessage {
+  createdAt     DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  fromAddress   String   @db.VarChar(255)
+  toAddress     String   @db.VarChar(255)
+  value         Int
+  data          String   @db.VarChar(255)
+  signature     String   @db.VarChar(255)
+  sourceNetwork String   @db.VarChar(255)
+  targetNetwork String   @db.VarChar(255)
+}
