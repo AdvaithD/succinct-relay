@@ -1,4 +1,4 @@
-# Succinct Relay - Arbitrary Message Bridge Contracts
+## Succinct Relay - Arbitrary Message Bridge Contracts
 
 Set of contracts and a trusted relayer that allows users to send arbitrary messages from one evm chain to another. 
 
@@ -17,6 +17,16 @@ Set of contracts and a trusted relayer that allows users to send arbitrary messa
     /mumbai.ts - Manually queue a message for execution from mumbai -> goerli
 /test - Has two simple tests that go over emitting execution requests and executing them
 ```
+
+## How It Works
+
+1. Anyone can call `send()` on the `Counter` contract with the appropriate arguments and a signature
+2. This emits an event `RequestForward()` that is picked up by the trusted relayer
+3. The relayer then takes the arguments in the event and calls `execute()` on the bridge on the target chain
+4. This results in the `increment()` function being called by the bridge on the target chain.
+
+NOTE: The `Counter` contract is owned by the bridge contract (as seen in the constructor when calling `Owned(_bridge)`)
+
 ## Setup
 
 Setup involves preparing necessary artifacts for the relay, running a docker postgres container and 
@@ -67,8 +77,6 @@ npm run send:matic
 
 NOTE: You will need to update the `nonce` variable when calling the send functions in the respective script (increment it after every successful send txn is sent out via the script)
 
-## Modify ./relayer/constants file with new addresses for the chains
-## SOURCE and TARGET
 
 npm run deploy:target # deploy contracts on source
 ## Gas Report
@@ -125,21 +133,15 @@ Considering two chains, `ChainX` and `ChainY`, we have 4 smart contracts deploye
      └────┘          └────────┘          └───────┘          └──────────────┘          └───────┘          └────────┘
 ```
 
-These contracts implement a few checks to ensure security and integrity of relayed messages between two EVM chains:
+These contracts implement a few checks to ensure security and integrity of relayed messages between two EVM chains. However, ideally we have the following checks implemented in a more 
+robust, production implementation.
 
 1. Verify the authenticity of the signed transaction: The relayer should check that the signature on the transaction is valid and corresponds to the expected sender.
-
 2. Check the nonce: The relayer should ensure that the nonce of the transaction matches the current nonce of the sender's account on the source chain.
-
 3. Verify the destination chain: The relayer should ensure that the transaction is being sent to the correct destination chain, and that the smart contract address on the destination chain is valid.
-
 4. Check the gas limit and gas price: The relayer should ensure that the gas limit and gas price of the transaction are reasonable and do not exceed the maximum allowed by the destination chain.
-
 5. Verify the smart contract code: The relayer should check that the smart contract code on the destination chain matches the expected code and has not been tampered with.
-
 6. Monitor the transaction receipt: The relayer should monitor the transaction receipt to ensure that the transaction was mined successfully on the destination chain.
-
-### Relayer Architecture
 
 ## License
 
