@@ -1,8 +1,8 @@
 import { RPC_ENDPOINTS } from "../../relayer/utils/constants";
-import { Counter__factory } from "../../typechain-types/factories/contracts/Counter__factory";
 import { ethers } from "hardhat";
 import {
   Counter,
+  Counter__factory,
   GenericBridge,
   GenericBridge__factory,
 } from "../../typechain-types";
@@ -36,7 +36,9 @@ async function main(): Promise<void> {
   const hash = await bridge.getMessageHash(
     ethers.utils.getAddress(ADDRESSES.GOERLI.COUNTER), // i want to execute on contract deployed on matic mumbai
     0, // value
-    2, // nonce
+    // NOTE: this is the value that needs to be updated since nonce is a mapping
+    // stored in the bridge contract
+    3, // nonce 
     sigHash, // sighash
     0 // bond
   );

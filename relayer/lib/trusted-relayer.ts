@@ -1,10 +1,9 @@
-import { Counter__factory } from "./../../typechain-types/factories/contracts/Counter__factory";
 import { getDefaultConfig } from "./../utils/config";
 import { bridge_abi } from "./../utils/constants";
 import { ethers, utils } from "ethers";
 import winston from "winston";
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { Counter } from "../../typechain-types";
+import { Counter, Counter__factory } from "../../typechain-types";
 import { LogDescription } from "ethers/lib/utils";
 import { createArbitraryMessage, prisma } from "../utils/db";
 import { ArbitraryMessage } from "@prisma/client";

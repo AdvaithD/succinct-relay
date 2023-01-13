@@ -1,40 +1,76 @@
-# Smart Contract Arbitrary Message Bridge
+# Succinct Relay - Arbitrary Message Bridge Contracts
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+Set of contracts and a trusted relayer that allows users to send arbitrary messages from one evm chain to another. 
 
-Try running some of the following tasks:
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.ts
-```
-
-# Arbitrary Message Bridge Smart Contracts
-
-Foobar is a simple implementation of a smart contract AMB (arbitrary message bridge).
-
-## Installation
-
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
+## Project Structure
 
 ```bash
+/contracts - Contracts directory (contains GenericBridge, BridgeLib, and Counter)
+/relayer - Relayer that watches and fulfills execution requests between two chains
+/deployments - Latest deployment addresses (currently mumbai.json and goerli.json)
+/prisma - Stores the prisma schema for the database (ArbitraryMessage)
+/scripts
+  /deploy.ts - Script to deploy contracts
+  /send
+    /goerli.ts - Manually queue a message for execution from goerli -> mumbai
+    /mumbai.ts - Manually queue a message for execution from mumbai -> goerli
+/test - Has two simple tests that go over emitting execution requests and executing them
+```
+## Setup
+
+Setup involves preparing necessary artifacts for the relay, running a docker postgres container and 
+
+### Relay Setuup
+
+1. Run a postgres docker cAntainer: 
+`docker run --name relayer-db -p 5455:5432 -e POSTGRES_USER=postgresUser -e POSTGRES_PASSWORD=postgresPW -e POSTGRES_DB=postgresDB -d postgres`
+
+2. Populate your `.env` file with the following variables
+
+```bash
+# format: postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public
+OWNER_PK=""
+BRIDGE_USER_PK=""
+ETHERSCAN_MAINNET="" # contract verifications
+ETHERSCAN_MUMBAI=""  # contract verification
+```
+
+3. Install dependencies, compile hardhat contracts
+```bash
 npm install # install dependencies
+npx hardhat compile # compile contracts, generate bindings (used by relay)
 
-npm run chain:source # run source chain
-npm run chain:target # run target chain
+4. Run the relay
+### Run Relay (watches and relays transaction)
+npm run relay
+```
 
-npm run deploy:source # deploy contracts on source
+### Deploy contracts locally
+
+```bash
+npm run deploy:goerli
+npm run deploy:mumbai
+```
+This should also popular `mumbai.json` and `goerli.json` in the `/deployments` folder
+
+### Interact With Testnet (Polygon Mumbai <-> Goerli)
+
+You can test out interactions that begin either on goerli, or mumbai
+```
+# send txn on goerli that queues counter being incremented on matic
+npm run send:goerli 
+
+# send txn on matic that queues counter being incremented on goerli
+npm run send:matic 
+```
+
+NOTE: You will need to update the `nonce` variable when calling the send functions in the respective script (increment it after every successful send txn is sent out via the script)
 
 ## Modify ./relayer/constants file with new addresses for the chains
 ## SOURCE and TARGET
 
 npm run deploy:target # deploy contracts on source
-
-```
-
 ## Gas Report
 
 ```bash
