@@ -184,7 +184,6 @@ export class TrustedRelayer implements IRelayer {
         getAddress(to) == getAddress(chain.bridgeAddress) ||
         getAddress(to) == getAddress(chain.counterAddress)
       ) {
-        console.log("found txn that matters", { from, to, hash });
         const { logs, blockNumber } =
           await chain.provider.getTransactionReceipt(hash);
         if (logs.length > 0) {
@@ -245,19 +244,15 @@ export class TrustedRelayer implements IRelayer {
       const parsedLog: LogDescription = chain.bridge.interface.parseLog(log);
       // todo: doesnt work
       if (!parsedLog) {
-        console.log("No log found");
         return;
       }
 
       if (parsedLog.name === "RequestForward") {
-        console.log("Received request to forward");
+        this.info(`${chain.name} Received request to forward`)
         const { from, to, value, nonce, data, bond, signature } =
           parsedLog.args;
-        console.log(
-          `Parsed req: from: ${from}, to: ${to}, value: ${value}, data: ${data}`
-        );
         this.info(
-          `Need to forward request: \n${from}, \n${to}, \n${value}, \n${data}`
+          `${chain.name}: Parsed req: from: ${from}, to: ${to}, value: ${value}, data: ${data}`
         );
         // await newForwardedRequest({ from, to, value, data})
         await this.relayTxnFor(chain, {
@@ -271,13 +266,13 @@ export class TrustedRelayer implements IRelayer {
         });
       }
       if (parsedLog.name === "RequestSucceeded") {
-        console.log("RequestSucceeded::SUCCESS");
+       this.info(`RequestSucceeded::EXECUTION COMPLETED on ${chain.name}`);
         const { from, to, value, nonce, data, bond, signature } =
           parsedLog.args;
-        console.log(`from: ${from}, to: ${to}, value: ${value}, data: ${data}`);
+        this.info(`TXINFO: from: ${from}, to: ${to}, value: ${value}, data: ${data}`);
       }
     } catch (error) {
-      console.log("ERROR:93", error);
+      console.log("ERROR", error);
     }
   };
 

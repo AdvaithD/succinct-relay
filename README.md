@@ -62,30 +62,31 @@ npm run deploy:target # deploy contracts on source
 ### Smart Contract Architecture
 
 Considering two chains, `ChainX` and `ChainY`, we have 4 smart contracts deployed:
-
 1. `ChainX`: `CounterX` and `BridgeX`
 1. `ChainY`: `CounterY` and `BridgeY`
 
-   ┌────┐ ┌────────┐ ┌───────┐ ┌──────────────┐ ┌───────┐ ┌────────┐
-   │User│ │CounterX│ │BridgeX│ │TrustedRelayer│ │BridgeY│ │CounterY│
-   └─┬──┘ └───┬────┘ └───┬───┘ └──────┬───────┘ └───┬───┘ └───┬────┘
-   │ send(increment) │ │ │ │ │
-   │ ────────────────> │ │ │ │
-   │ │ │ │ │ │
-   │ │ send() │ │ │ │
-   │ │ ─────────────────>│ │ │ │
-   │ │ │ │ │ │
-   │ │ │ RequestForward() │ │ │
-   │ │ │────────────────────>│ │ │
-   │ │ │ │ │ │
-   │ │ │ │ execute() │ │
-   │ │ │ │ ────────────────────>│ │
-   │ │ │ │ │ │
-   │ │ │ │ │ increment │
-   │ │ │ │ │─────────────────>│
-   ┌─┴──┐ ┌───┴────┐ ┌───┴───┐ ┌──────┴───────┐ ┌───┴───┐ ┌───┴────┐
-   │User│ │CounterX│ │BridgeX│ │TrustedRelayer│ │BridgeY│ │CounterY│
-   └────┘ └────────┘ └───────┘ └──────────────┘ └───────┘ └────────┘
+
+
+     ┌────┐          ┌────────┐          ┌───────┐          ┌──────────────┐          ┌───────┐          ┌────────┐
+     │User│          │CounterX│          │BridgeX│          │TrustedRelayer│          │BridgeY│          │CounterY│
+     └─┬──┘          └───┬────┘          └───┬───┘          └──────┬───────┘          └───┬───┘          └───┬────┘
+       │ send(increment) │                   │                     │                      │                  │
+       │ ────────────────>                   │                     │                      │                  │
+       │                 │                   │                     │                      │                  │
+       │                 │      send()       │                     │                      │                  │
+       │                 │ ─────────────────>│                     │                      │                  │
+       │                 │                   │                     │                      │                  │
+       │                 │                   │  RequestForward()   │                      │                  │
+       │                 │                   │────────────────────>│                      │                  │
+       │                 │                   │                     │                      │                  │
+       │                 │                   │                     │      execute()       │                  │
+       │                 │                   │                     │ ────────────────────>│                  │
+       │                 │                   │                     │                      │                  │
+       │                 │                   │                     │                      │    increment     │
+       │                 │                   │                     │                      │─────────────────>│
+     ┌─┴──┐          ┌───┴────┐          ┌───┴───┐          ┌──────┴───────┐          ┌───┴───┐          ┌───┴────┐
+     │User│          │CounterX│          │BridgeX│          │TrustedRelayer│          │BridgeY│          │CounterY│
+     └────┘          └────────┘          └───────┘          └──────────────┘          └───────┘          └────────┘
 
 These contracts implement a few checks to ensure security and integrity of relayed messages between two EVM chains:
 
